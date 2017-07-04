@@ -28,18 +28,70 @@ int main() {
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   SDL_Texture *tile = load_tile(renderer, "tiles/1.png");
 
+  int xPos = 0;
+  int yPos = 0;
+  int vel = 1;
   bool done = false;
+  bool direction[] = {false, false, false, false};
   while (!done) {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         done = true;
       }
+      else if(event.type == SDL_KEYDOWN) {
+        SDL_Keycode pressed = event.key.keysym.sym;
+        switch(pressed) {
+          case SDLK_UP:
+            direction[0] = true;
+          break;
+          case SDLK_RIGHT:
+            direction[1] = true;
+          break;
+          case SDLK_DOWN:
+            direction[2] = true;
+          break;
+          case SDLK_LEFT:
+            direction[3] = true;
+          break;
+        }
+      }
+      else if(event.type == SDL_KEYUP) {
+        SDL_Keycode pressed = event.key.keysym.sym;
+        switch(pressed) {
+          case SDLK_UP:
+            direction[0] = false;
+          break;
+          case SDLK_RIGHT:
+            direction[1] = false;
+          break;
+          case SDLK_DOWN:
+            direction[2] = false;
+          break;
+          case SDLK_LEFT:
+            direction[3] = false;
+          break;
+        }
+      }
     }
+
+    if (direction[0]) {
+      yPos -= vel;
+    }
+    if (direction[1]) {
+      xPos += vel;
+    }
+    if (direction[2]) {
+      yPos += vel;
+    }
+    if (direction[3]) {
+      xPos -= vel;
+    }
+
     SDL_RenderClear(renderer);
     SDL_Rect dest;
-    dest.x = 0;
-    dest.y = 0;
+    dest.x = xPos;
+    dest.y = yPos;
     dest.w = 128;
     dest.h = 128;
     SDL_RenderCopy(renderer, tile, NULL, &dest);
