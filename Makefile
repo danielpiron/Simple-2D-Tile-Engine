@@ -3,7 +3,7 @@ CXX_FLAGS=-std=c++11 -I/usr/local/include
 LD_FLAGS=-L/usr/local/lib
 
 tile: tile.o
-	$(CXX) $(LD_FLAGS) -o tile tile.o -lSDL2
+	$(CXX) $(LD_FLAGS) -o tile tile.o -lSDL2 -lSDL2_image
 
 tile.o: tile.cc
 	$(CXX) $(CXX_FLAGS) -o tile.o -c tile.cc
