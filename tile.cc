@@ -15,7 +15,67 @@ SDL_Texture *load_tile(SDL_Renderer *renderer, std::string filename) {
   return tiletex;
 }
 
+
+class TileMap {
+public:
+  TileMap(const int cols, const int rows);
+  ~TileMap();
+  int Height() const;
+  int Width() const;
+  SDL_Texture *TileAt(const int cols, const int rows) const;
+  void Set(const int cols, const int rows, int index) const;
+  void SetTileset(const std::vector<SDL_Texture*> &new_tileset) {
+    tileset = new_tileset;
+  }
+private:
+  const int rows;
+  const int columns;
+  int *map;
+  std::vector<SDL_Texture*> tileset;
+};
+
+TileMap::TileMap(const int cols, const int rows) : rows(rows), columns(cols) {
+  map = new int[columns * rows]();
+}
+
+TileMap::~TileMap() {
+  delete map;
+}
+
+void TileMap::Set(const int col, const int row, const int index) const {
+  // NOTE: We are writing to the tilemap, but not changing the pointer, so
+  // the const constraint actually holds here.
+  map[row * columns + col] = index;
+}
+
+SDL_Texture *TileMap::TileAt(const int col, const int row) const {
+  return tileset[map[row * columns + col]];
+}
+
+int TileMap::Height() const {
+  return rows;
+}
+
+int TileMap::Width() const {
+  return columns;
+}
+
+void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap) {
+
+    for (int i = 0; i < tilemap.Height(); i++) {
+      for (int j = 0; j < tilemap.Width(); j++) {
+        SDL_Rect dest;
+        dest.x = j * 128;
+        dest.y = i * 128;
+        dest.w = 128;
+        dest.h = 128;
+        SDL_RenderCopy(renderer, tilemap.TileAt(j, i), NULL, &dest);
+      }
+  }
+}
+
 int main() {
+
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     std::cerr << "SDL Init failed" << std::endl;
     return 1;
@@ -32,21 +92,33 @@ int main() {
 
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+  int o_width, o_height;
+  SDL_GetRendererOutputSize(renderer, &o_width, &o_height);
+  std::cout << "Width: " << o_width << ", Height: " << o_height << std::endl;
+
+  TileMap tilemap{10, 8};
+
   std::vector<SDL_Texture*> tiles;
   tiles.push_back(nullptr);
 
   for (int i = 1; i <= 16; i++) {
     tiles.push_back(load_tile(renderer, "tiles/" + std::to_string(i) + ".png"));
+    if (i < 11)
+      tilemap.Set(i, 0, i);
   }
+
+  tilemap.SetTileset(tiles);
 
   int xPos = 0;
   int yPos = 0;
-  int vel = 1;
+  int vel = 2;
   int tile_idx = 1;
   bool done = false;
   bool direction[] = {false, false, false, false};
   while (!done) {
     SDL_Event event;
+    bool stamp = false;
+    bool clear = false;
     while(SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         done = true;
@@ -74,6 +146,9 @@ int main() {
             tile_idx--;
             if (tile_idx < 1) tile_idx = 16;
           break;
+          case SDLK_s:
+            clear = true;
+          break;
         }
       }
       else if(event.type == SDL_KEYUP) {
@@ -90,6 +165,9 @@ int main() {
           break;
           case SDLK_LEFT:
             direction[3] = false;
+          break;
+          case SDLK_SPACE:
+            stamp = true;
           break;
         }
       }
@@ -108,12 +186,21 @@ int main() {
       xPos -= vel;
     }
 
+    if (clear) {
+      tilemap.Set(xPos / 128, yPos / 128, 0);
+    }
+    else if (stamp) {
+      tilemap.Set(xPos / 128, yPos / 128, tile_idx);
+    }
+
     SDL_RenderClear(renderer);
+    RenderTiles(renderer, tilemap);
     SDL_Rect dest;
-    dest.x = xPos;
-    dest.y = yPos;
+    dest.x = xPos & ~127;
+    dest.y = yPos & ~127;
     dest.w = 128;
     dest.h = 128;
+
     SDL_RenderCopy(renderer, tiles[tile_idx], NULL, &dest);
     SDL_RenderPresent(renderer);
   }
