@@ -2,6 +2,11 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <string>
+#include <vector>
+
+/**
+ * We are are going to start off with 16 tiles across
+ **/
 
 SDL_Texture *load_tile(SDL_Renderer *renderer, std::string filename) {
   SDL_Surface *temp = IMG_Load(filename.c_str());
@@ -26,11 +31,18 @@ int main() {
   }
 
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  SDL_Texture *tile = load_tile(renderer, "tiles/1.png");
+
+  std::vector<SDL_Texture*> tiles;
+  tiles.push_back(nullptr);
+
+  for (int i = 1; i <= 16; i++) {
+    tiles.push_back(load_tile(renderer, "tiles/" + std::to_string(i) + ".png"));
+  }
 
   int xPos = 0;
   int yPos = 0;
   int vel = 1;
+  int tile_idx = 1;
   bool done = false;
   bool direction[] = {false, false, false, false};
   while (!done) {
@@ -53,6 +65,14 @@ int main() {
           break;
           case SDLK_LEFT:
             direction[3] = true;
+          break;
+          case SDLK_a:
+            tile_idx++;
+            if (tile_idx > 16) tile_idx = 1;
+          break;
+          case SDLK_z:
+            tile_idx--;
+            if (tile_idx < 1) tile_idx = 16;
           break;
         }
       }
@@ -94,11 +114,14 @@ int main() {
     dest.y = yPos;
     dest.w = 128;
     dest.h = 128;
-    SDL_RenderCopy(renderer, tile, NULL, &dest);
+    SDL_RenderCopy(renderer, tiles[tile_idx], NULL, &dest);
     SDL_RenderPresent(renderer);
   }
 
-  SDL_DestroyTexture(tile);
+  for (SDL_Texture *texture: tiles) {
+    if (texture) { SDL_DestroyTexture(texture); }
+  }
+
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
