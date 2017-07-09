@@ -124,6 +124,13 @@ int main() {
       if (event.type == SDL_QUIT) {
         done = true;
       }
+      else if (event.type == SDL_MOUSEMOTION) {
+        xPos = event.motion.x * 2;
+        yPos = event.motion.y * 2;
+      }
+      else if (event.type == SDL_MOUSEBUTTONUP) {
+        stamp = true;
+      }
       else if(event.type == SDL_KEYDOWN) {
         SDL_Keycode pressed = event.key.keysym.sym;
         switch(pressed) {
