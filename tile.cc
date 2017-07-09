@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #define TILE_SIZE 80
 
@@ -25,6 +26,7 @@ public:
   ~TileMap();
   int Height() const;
   int Width() const;
+  int TileIndexAt(const int cols, const int rows) const;
   SDL_Texture *TileAt(const int cols, const int rows) const;
   void Set(const int cols, const int rows, int index) const;
   void SetTileset(const std::vector<SDL_Texture*> &new_tileset) {
@@ -51,8 +53,12 @@ void TileMap::Set(const int col, const int row, const int index) const {
   map[row * columns + col] = index;
 }
 
+int TileMap::TileIndexAt(const int col, const int row) const {
+  return map[row * columns + col];
+}
+
 SDL_Texture *TileMap::TileAt(const int col, const int row) const {
-  return tileset[map[row * columns + col]];
+  return tileset[TileIndexAt(col, row)];
 }
 
 int TileMap::Height() const {
@@ -61,6 +67,35 @@ int TileMap::Height() const {
 
 int TileMap::Width() const {
   return columns;
+}
+
+void SaveTiles(const TileMap &tilemap, const std::string filename) {
+  std::ofstream fout{filename};
+  for (int i = 0; i < tilemap.Height(); i++) {
+    for (int j = 0; j < tilemap.Width(); j++) {
+      int index = tilemap.TileIndexAt(j, i);
+      if (index == 0) { fout.put('.'); }
+      else {
+        fout.put('A' + static_cast<char>(index) - 1);
+      }
+    }
+    fout << std::endl;
+  }
+}
+
+void LoadTiles(const TileMap &tilemap, const std::string filename) {
+  std::ifstream fin{filename};
+  std::string line;
+  for (int i = 0; i < tilemap.Height(); i++) {
+    std::getline(fin, line);
+    for (int j = 0; j < tilemap.Width(); j++) {
+      int data = line[j];
+      if (data == '.') { tilemap.Set(j, i, 0); }
+      else {
+        tilemap.Set(j, i, data - 'A' + 1);
+      }
+    }
+  }
 }
 
 void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap) {
@@ -109,6 +144,7 @@ int main() {
   }
 
   tilemap.SetTileset(tiles);
+  LoadTiles(tilemap, "map.txt");
 
   int xPos = 0;
   int yPos = 0;
@@ -123,6 +159,7 @@ int main() {
     while(SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         done = true;
+        SaveTiles(tilemap, "map.txt");
       }
       else if (event.type == SDL_MOUSEMOTION) {
         xPos = event.motion.x * 2;
