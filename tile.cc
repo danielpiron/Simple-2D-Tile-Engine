@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#define TILE_SIZE 128
+#define TILE_SIZE 80
 
 
 /**
