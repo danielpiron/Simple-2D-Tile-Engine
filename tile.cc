@@ -143,6 +143,8 @@ int main() {
     tiles.push_back(load_tile(renderer, "tiles/" + std::to_string(i) + ".png"));
   }
 
+  SDL_Texture *bg = load_tile(renderer, "bg/BG.png");
+
   tilemap.SetTileset(tiles);
   LoadTiles(tilemap, "map.txt");
 
@@ -239,6 +241,7 @@ int main() {
     }
 
     SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, bg, NULL, NULL);
     RenderTiles(renderer, tilemap);
     SDL_Rect dest;
     dest.x = xPos / TILE_SIZE * TILE_SIZE;
@@ -254,6 +257,7 @@ int main() {
     if (texture) { SDL_DestroyTexture(texture); }
   }
 
+  SDL_DestroyTexture(bg);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
