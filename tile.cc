@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#define TILE_SIZE 128
+
+
 /**
  * We are are going to start off with 16 tiles across
  **/
@@ -65,10 +68,10 @@ void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap) {
     for (int i = 0; i < tilemap.Height(); i++) {
       for (int j = 0; j < tilemap.Width(); j++) {
         SDL_Rect dest;
-        dest.x = j * 128;
-        dest.y = i * 128;
-        dest.w = 128;
-        dest.h = 128;
+        dest.x = j * TILE_SIZE;
+        dest.y = i * TILE_SIZE;
+        dest.w = TILE_SIZE;
+        dest.h = TILE_SIZE;
         SDL_RenderCopy(renderer, tilemap.TileAt(j, i), NULL, &dest);
       }
   }
@@ -96,15 +99,13 @@ int main() {
   SDL_GetRendererOutputSize(renderer, &o_width, &o_height);
   std::cout << "Width: " << o_width << ", Height: " << o_height << std::endl;
 
-  TileMap tilemap{10, 8};
+  TileMap tilemap{o_width / TILE_SIZE, o_height / TILE_SIZE};
 
   std::vector<SDL_Texture*> tiles;
   tiles.push_back(nullptr);
 
   for (int i = 1; i <= 16; i++) {
     tiles.push_back(load_tile(renderer, "tiles/" + std::to_string(i) + ".png"));
-    if (i < 11)
-      tilemap.Set(i, 0, i);
   }
 
   tilemap.SetTileset(tiles);
@@ -187,19 +188,19 @@ int main() {
     }
 
     if (clear) {
-      tilemap.Set(xPos / 128, yPos / 128, 0);
+      tilemap.Set(xPos / TILE_SIZE, yPos / TILE_SIZE, 0);
     }
     else if (stamp) {
-      tilemap.Set(xPos / 128, yPos / 128, tile_idx);
+      tilemap.Set(xPos / TILE_SIZE, yPos / TILE_SIZE, tile_idx);
     }
 
     SDL_RenderClear(renderer);
     RenderTiles(renderer, tilemap);
     SDL_Rect dest;
-    dest.x = xPos & ~127;
-    dest.y = yPos & ~127;
-    dest.w = 128;
-    dest.h = 128;
+    dest.x = xPos / TILE_SIZE * TILE_SIZE;
+    dest.y = yPos / TILE_SIZE * TILE_SIZE;
+    dest.w = TILE_SIZE;
+    dest.h = TILE_SIZE;
 
     SDL_RenderCopy(renderer, tiles[tile_idx], NULL, &dest);
     SDL_RenderPresent(renderer);
