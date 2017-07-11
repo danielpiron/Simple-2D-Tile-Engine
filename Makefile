@@ -7,8 +7,12 @@ tile: tile.o
 
 tile.o: tile.cpp
 	$(CXX) $(CXX_FLAGS) -o tile.o -c tile.cpp
+
+render: render.cpp
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) -o render render.cpp -lSDL2 -lSDL2_image
+
 	
 .PHONY: clean
 
 clean:
-	rm *.o tile
+	rm *.o tile render
