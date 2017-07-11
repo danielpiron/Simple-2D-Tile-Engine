@@ -10,6 +10,7 @@ public:
   virtual void Draw(const int x, const int y,
                     const int w, const int h,
                     const int tile_index) = 0;
+  virtual int RegisterTexture(const char *path) = 0;
   virtual void Render() = 0;
   struct Sprite {
     int x, y, w, h;
@@ -26,6 +27,7 @@ public:
   void Draw(const int x, const int y,
             const int w, const int h,
             const int tile_index) override;
+  int RegisterTexture(const char *path) override;
   void Render() override;
 private:
   SDL_Window *window;
@@ -67,7 +69,13 @@ bool SDLRender::Create(const char *title,
                          width, height, SDL_WINDOW_ALLOW_HIGHDPI);
 
   if (window == nullptr) {
-    std::cerr << "SDL Window Init Failed" << std::endl;
+    std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
+    return false;
+  }
+
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  if (renderer == nullptr) {
+    std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
     return false;
   }
   return true;
@@ -75,13 +83,44 @@ bool SDLRender::Create(const char *title,
 
 void SDLRender::Draw(const int x, const int y,
                      const int w, const int h,
-                     const int tile_index) {}
+                     const int tile_index) {
+  draw_list.push_back({x, y, w, h, tile_index});
+}
 
-void SDLRender::Render() {}
+int SDLRender::RegisterTexture(const char *path) {
+  SDL_Surface *tmp_surface = IMG_Load(path);
+  SDL_Texture *p_texture = SDL_CreateTextureFromSurface(renderer, tmp_surface);
+
+  int tile_index = textures.size();
+  if (p_texture == nullptr) {
+    std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
+    tile_index = -1;
+  }
+
+  if (tile_index >= 0) { textures.push_back(p_texture); }
+  SDL_FreeSurface(tmp_surface);
+  return tile_index;
+}
+
+void SDLRender::Render() {
+  SDL_RenderClear(renderer);
+  for (auto sprite : draw_list) {
+    SDL_Rect dest = {
+      sprite.x, sprite.y, sprite.w, sprite.h
+    };
+    SDL_RenderCopy(renderer, textures[sprite.tex], NULL, &dest);
+  }
+  SDL_RenderPresent(renderer);
+  draw_list.clear();
+}
 
 int main() {
   SDLRender render;
-  render.Create("This is a test", 640, 408);
+  render.Create("This is a test", 640, 480);
+  int tex = render.RegisterTexture("tiles/1.png");
+  if (tex == -1) {
+    std::cerr << "Texture registration failed: " << SDL_GetError() << std::endl;
+  }
   bool done = false;
   while (!done) {
     SDL_Event event;
@@ -90,5 +129,7 @@ int main() {
         done = true;
       }
     }
+    render.Draw(40, 40, 128, 128, tex);
+    render.Render();
   }
 }
