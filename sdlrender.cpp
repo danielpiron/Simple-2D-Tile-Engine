@@ -1,49 +1,9 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <iostream>
-#include <vector>
-
-class IRender {
-public:
-    virtual bool Create(const char* title,
-        const int width, const int height)
-        = 0;
-    virtual void Draw(const int x, const int y,
-        const int w, const int h,
-        const int tile_index)
-        = 0;
-    virtual int RegisterTexture(const char* path) = 0;
-    virtual void Render() = 0;
-    struct Sprite {
-        int x, y, w, h;
-        int tex;
-    };
-};
-
-class SDLRender : public IRender {
-public:
-    SDLRender();
-    ~SDLRender();
-    bool Create(const char* title,
-        const int width, const int height) override;
-    void Draw(const int x, const int y,
-        const int w, const int h,
-        const int tile_index) override;
-    int RegisterTexture(const char* path) override;
-    void Render() override;
-
-private:
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    std::vector<SDL_Texture*> textures;
-    std::vector<IRender::Sprite> draw_list;
-    void DestroyTextures();
-};
+#include "sdlrender.h"
 
 SDLRender::SDLRender()
+    : window(nullptr)
+    , renderer(nullptr)
 {
-    window = nullptr;
-    renderer = nullptr;
 }
 
 SDLRender::~SDLRender()
@@ -124,25 +84,4 @@ void SDLRender::Render()
     }
     SDL_RenderPresent(renderer);
     draw_list.clear();
-}
-
-int main()
-{
-    SDLRender render;
-    render.Create("This is a test", 640, 480);
-    int tex = render.RegisterTexture("tiles/1.png");
-    if (tex == -1) {
-        std::cerr << "Texture registration failed: " << SDL_GetError() << std::endl;
-    }
-    bool done = false;
-    while (!done) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                done = true;
-            }
-        }
-        render.Draw(40, 40, 128, 128, tex);
-        render.Render();
-    }
 }
