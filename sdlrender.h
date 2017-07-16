@@ -2,11 +2,12 @@
 #define SDLRENDER_H
 
 #include "irender.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <vector>
 
+struct SDL_Renderer;
+struct SDL_Texture;
+struct SDL_Window;
 class SDLRender : public IRender {
 public:
     SDLRender();
