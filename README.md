@@ -6,3 +6,4 @@ have the following goals in mind:
  * Keep is simple
  * Keep it portable (Linux, Mac, Windows)
  * Keep it elegant
+ * Use c++11
