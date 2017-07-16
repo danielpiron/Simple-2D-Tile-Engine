@@ -112,7 +112,8 @@ void RenderTiles(IRender& renderer, const TileMap& tilemap)
 {
     for (int i = 0; i < tilemap.Height(); i++) {
         for (int j = 0; j < tilemap.Width(); j++) {
-            if (tilemap.TileIndexAt(j, i) == 0) continue;
+            if (tilemap.TileIndexAt(j, i) == 0)
+                continue;
             renderer.Draw(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE,
                 tilemap.TileAt(j, i));
         }
@@ -123,7 +124,7 @@ int main()
 {
     SDLRender render;
     render.Create("This is a test", 640, 480);
-    TileMap tilemap{16, 12};
+    TileMap tilemap{ 16, 12 };
     LoadTiles(tilemap, "map.txt");
     tilemap.SetTileset(LoadTileset(render, "tiles", 16));
     bool done = false;
