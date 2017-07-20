@@ -1,5 +1,5 @@
-CXX=clang++
-CXX_FLAGS=-std=c++11 -I/usr/local/include
+CXX=g++
+CXX_FLAGS=-std=c++11 -I/usr/local/include -g
 LD_FLAGS=-L/usr/local/lib
 
 render: main.o sdlrender.o 

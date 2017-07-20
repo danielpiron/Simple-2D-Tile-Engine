@@ -80,7 +80,7 @@ int SDLRender::RegisterTexture(const char* path)
     int tile_index = textures.size();
     if (p_texture == nullptr) {
         std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl;
-        tile_index = -1;
+        tile_index = -1; // TODO: We need a better error detection mechanism
     }
 
     if (tile_index >= 0) {
