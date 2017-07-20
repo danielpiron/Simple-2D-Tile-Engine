@@ -85,16 +85,17 @@ void LoadTiles(const TileMap& tilemap, const std::string filename)
 {
     std::ifstream fin{ filename };
     std::string line;
-    for (int i = 0; i < tilemap.Height(); i++) {
-        std::getline(fin, line);
-        for (int j = 0; j < tilemap.Width(); j++) {
-            int data = line[j];
-            if (data == '.') {
-                tilemap.Set(j, i, 0);
-            } else {
-                tilemap.Set(j, i, data - 'A' + 1);
-            }
+    int row = 0;
+    while(std::getline(fin, line)) {
+        if (row >= tilemap.Height()) continue;
+        int col = 0;
+        for (char data : line) {
+            if (col >= tilemap.Width()) continue;
+            if (data == '.') tilemap.Set(col, row, 0);
+            else tilemap.Set(col, row, data - 'A' + 1);
+            col++;
         }
+        row++;
     }
 }
 
