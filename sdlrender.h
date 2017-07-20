@@ -25,7 +25,12 @@ private:
     SDL_Renderer* renderer;
     std::vector<SDL_Texture*> textures;
     std::vector<IRender::Sprite> draw_list;
+
+    float horizontal_ratio;
+    float vertical_ratio;
+
     void DestroyTextures();
+    void calculate_screen_ratios(const int w, const int h);
 };
 
 #endif

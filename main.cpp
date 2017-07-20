@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h> // Let's try to get rid of this dependency
 #include <fstream>
 
-#define TILE_SIZE 80
+#define TILE_SIZE 40
 
 class TileMap {
 public:

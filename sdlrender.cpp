@@ -1,6 +1,6 @@
+#include "sdlrender.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "sdlrender.h"
 
 SDLRender::SDLRender()
     : window(nullptr)
@@ -47,14 +47,29 @@ bool SDLRender::Create(const char* title,
         std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    calculate_screen_ratios(width, height);
     return true;
+}
+
+void SDLRender::calculate_screen_ratios(const int w, const int h)
+{
+    int client_width = 0;
+    int client_height = 0;
+    SDL_GetRendererOutputSize(renderer, &client_width, &client_height);
+    horizontal_ratio = static_cast<float>(client_width) / w;
+    vertical_ratio = static_cast<float>(client_height) / h;
 }
 
 void SDLRender::Draw(const int x, const int y,
     const int w, const int h,
     const int tile_index)
 {
-    draw_list.push_back({ x, y, w, h, tile_index });
+    draw_list.push_back({ static_cast<int>(x * horizontal_ratio),
+        static_cast<int>(y * vertical_ratio),
+        static_cast<int>(w * horizontal_ratio),
+        static_cast<int>(h * vertical_ratio),
+        tile_index });
 }
 
 int SDLRender::RegisterTexture(const char* path)
