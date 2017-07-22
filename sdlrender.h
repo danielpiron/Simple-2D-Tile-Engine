@@ -12,12 +12,13 @@ class SDLRender : public IRender {
 public:
     SDLRender();
     ~SDLRender();
-    bool Create(const char* title,
-        const int width, const int height) override;
-    void Draw(const int x, const int y,
-        const int w, const int h,
+    bool Create(const char* title, const int width, const int height) override;
+    void Draw(const int x, const int y, const int w, const int h,
         const int tile_index) override;
+    void Draw(const int x, const int y, const int w, const int h,
+        const IRender::Rect& sub, const int tile_index);
     int RegisterTexture(const char* path) override;
+    std::tuple<int, int> TextureDimensions(const int index) const override;
     void Render() override;
 
 private:

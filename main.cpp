@@ -33,10 +33,7 @@ TileMap::TileMap(const int cols, const int rows)
     map = new int[columns * rows]();
 }
 
-TileMap::~TileMap()
-{
-    delete map;
-}
+TileMap::~TileMap() { delete map; }
 
 void TileMap::Set(const int col, const int row, const int index) const
 {
@@ -55,15 +52,9 @@ int TileMap::TileAt(const int col, const int row) const
     return tileset[TileIndexAt(col, row)];
 }
 
-int TileMap::Height() const
-{
-    return rows;
-}
+int TileMap::Height() const { return rows; }
 
-int TileMap::Width() const
-{
-    return columns;
-}
+int TileMap::Width() const { return columns; }
 
 void SaveTiles(const TileMap& tilemap, const std::string filename)
 {
@@ -86,25 +77,31 @@ void LoadTiles(const TileMap& tilemap, const std::string filename)
     std::ifstream fin{ filename };
     std::string line;
     int row = 0;
-    while(std::getline(fin, line)) {
-        if (row >= tilemap.Height()) continue;
+    while (std::getline(fin, line)) {
+        if (row >= tilemap.Height())
+            continue;
         int col = 0;
         for (char data : line) {
-            if (col >= tilemap.Width()) continue;
-            if (data == '.') tilemap.Set(col, row, 0);
-            else tilemap.Set(col, row, data - 'A' + 1);
+            if (col >= tilemap.Width())
+                continue;
+            if (data == '.')
+                tilemap.Set(col, row, 0);
+            else
+                tilemap.Set(col, row, data - 'A' + 1);
             col++;
         }
         row++;
     }
 }
 
-std::vector<int> LoadTileset(IRender& renderer, std::string dirname, int count)
+std::vector<int> LoadTileset(IRender& renderer, std::string dirname,
+    int count)
 {
     std::vector<int> tileset;
     tileset.push_back(-1);
     for (int i = 1; i <= count; i++) {
-        tileset.push_back(renderer.RegisterTexture((dirname + "/" + std::to_string(i) + ".png").c_str()));
+        tileset.push_back(renderer.RegisterTexture(
+            (dirname + "/" + std::to_string(i) + ".png").c_str()));
     }
     return tileset;
 }
@@ -128,15 +125,20 @@ int main()
     TileMap tilemap{ 16, 12 };
     LoadTiles(tilemap, "map.txt");
     tilemap.SetTileset(LoadTileset(render, "tiles", 16));
+
+    int caveman = render.RegisterTexture("sprites/spritesheet_caveman.png");
+    auto dim = render.TextureDimensions(caveman);
+    int width = std::get<0>(dim);
+    int height = std::get<1>(dim);
+    std::cout << width << "x" << height << "\n";
     bool done = false;
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                done = true;
-            }
+            if (event.type == SDL_QUIT) done = true;
         }
         RenderTiles(render, tilemap);
+        render.Draw(0, 0, 64, 64, { 0, 0, 32, 32 }, caveman);
         render.Render();
     }
 }
