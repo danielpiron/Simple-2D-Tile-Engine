@@ -40,7 +40,7 @@ bool SDLRender::Create(const char* title, const int width, const int height)
         return false;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr) {
         std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
         return false;
