@@ -1,6 +1,7 @@
 #include "sdlrender.h"
 #include <SDL2/SDL.h> // Let's try to get rid of this dependency
 #include <fstream>
+#include <vector>
 
 #define TILE_SIZE 40
 
@@ -118,6 +119,19 @@ void RenderTiles(IRender& renderer, const TileMap& tilemap)
     }
 }
 
+std::vector<IRender::Rect> make_frames(const int per_row, const int per_col,
+    const int width, const int height)
+{
+    int frame_width = width / per_row;
+    int frame_height = height / per_col;
+    std::vector<IRender::Rect> frames;
+    for (int i = 0; i < per_col; i++)
+        for (int j = 0; j < per_row; j++)
+            frames.push_back({ j * frame_width, i * frame_height,
+                frame_width, frame_height });
+    return frames;
+}
+
 int main()
 {
     SDLRender render;
@@ -125,6 +139,8 @@ int main()
     TileMap tilemap{ 16, 12 };
     LoadTiles(tilemap, "map.txt");
     tilemap.SetTileset(LoadTileset(render, "tiles", 16));
+    int cur_frame = 0;
+    std::vector<IRender::Rect> frames = make_frames(4, 4, 128, 128);
 
     int caveman = render.RegisterTexture("sprites/spritesheet_caveman.png");
     auto dim = render.TextureDimensions(caveman);
@@ -135,10 +151,12 @@ int main()
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) done = true;
+            if (event.type == SDL_QUIT)
+                done = true;
         }
         RenderTiles(render, tilemap);
-        render.Draw(0, 0, 64, 64, { 0, 0, 32, 32 }, caveman);
+        render.Draw(0, 0, 64, 64, frames[cur_frame % 16], caveman);
         render.Render();
+        cur_frame++;
     }
 }
