@@ -1,1 +1,4 @@
 * Use cmake to generate build
+* Return a more appropriate type from RegisterTexture (ITextureHandle?)
+* Change the 'Draw' API to accept texture sub images <e.g. render.draw(subimage, x, y);>
+* Update animation to take sub images, although theoretically, it could be templated to take whatever.
