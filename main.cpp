@@ -139,8 +139,11 @@ int main()
     TileMap tilemap{ 16, 12 };
     LoadTiles(tilemap, "map.txt");
     tilemap.SetTileset(LoadTileset(render, "tiles", 16));
-    int cur_frame = 0;
     std::vector<IRender::Rect> frames = make_frames(4, 4, 128, 128);
+
+    unsigned int frametime_ms = 0; // frametime in millis (probably a bad name)
+    unsigned int animation_time_ms = 800; 
+    unsigned int frame_count = frames.size();
 
     int caveman = render.RegisterTexture("sprites/spritesheet_caveman.png");
     auto dim = render.TextureDimensions(caveman);
@@ -148,6 +151,7 @@ int main()
     int height = std::get<1>(dim);
     std::cout << width << "x" << height << "\n";
     bool done = false;
+    int x = 640;
     while (!done) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -155,8 +159,12 @@ int main()
                 done = true;
         }
         RenderTiles(render, tilemap);
-        render.Draw(0, 0, 64, 64, frames[cur_frame % 16], caveman);
+        int current_frame = frame_count * frametime_ms / animation_time_ms;
+        render.Draw(x, 0, 64, 64, frames[current_frame], caveman);
         render.Render();
-        cur_frame++;
+        frametime_ms += 16;
+        if (frametime_ms >= animation_time_ms)
+            frametime_ms -= animation_time_ms;
+        if (--x < -64) x = 640;
     }
 }
