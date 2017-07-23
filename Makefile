@@ -2,11 +2,14 @@ CXX=g++
 CXX_FLAGS=-std=c++11 -I/usr/local/include -g
 LD_FLAGS=-L/usr/local/lib
 
-render: main.o sdlrender.o 
-	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) -o render sdlrender.o main.o -lSDL2 -lSDL2_image
+render: main.o sdlrender.o animation.o
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) -o render sdlrender.o main.o animation.o -lSDL2 -lSDL2_image
 
 main.o: main.cpp
 	$(CXX) $(CXX_FLAGS) -o main.o -c main.cpp
+
+animation.o: animation.cpp
+	$(CXX) $(CXX_FLAGS) -o animation.o -c animation.cpp
 
 sdlrender.o: sdlrender.cpp
 	$(CXX) $(CXX_FLAGS) -o sdlrender.o -c sdlrender.cpp
