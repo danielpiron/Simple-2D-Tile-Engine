@@ -1,5 +1,6 @@
 #include "sdlrender.h"
 #include <SDL2/SDL.h> // Let's try to get rid of this dependency
+#include <cassert>
 #include <fstream>
 #include <vector>
 
@@ -132,6 +133,38 @@ std::vector<IRender::Rect> make_frames(const int per_row, const int per_col,
     return frames;
 }
 
+class Animation {
+
+public:
+    Animation(const int duration, std::vector<IRender::Rect>& frames);
+    IRender::Rect current_frame() const;
+    void update(const int dt);
+
+private:
+    int millis_elapsed;
+    const int duration;
+    const std::vector<IRender::Rect> frames;
+};
+
+Animation::Animation(const int duration, std::vector<IRender::Rect>& frames)
+    : duration(duration)
+    , frames(frames)
+{
+}
+
+void Animation::update(const int dt)
+{
+    millis_elapsed += dt;
+    if (millis_elapsed >= duration) millis_elapsed -= duration;
+}
+
+IRender::Rect Animation::current_frame() const
+{
+    int frame_index = frames.size() * millis_elapsed / duration;
+    assert(frame_index < frames.size());
+    return frames[frame_index];
+}
+
 int main()
 {
     SDLRender render;
@@ -140,16 +173,9 @@ int main()
     LoadTiles(tilemap, "map.txt");
     tilemap.SetTileset(LoadTileset(render, "tiles", 16));
     std::vector<IRender::Rect> frames = make_frames(4, 4, 128, 128);
-
-    unsigned int frametime_ms = 0; // frametime in millis (probably a bad name)
-    unsigned int animation_time_ms = 800; 
-    unsigned int frame_count = frames.size();
+    auto animation = Animation(800, frames);
 
     int caveman = render.RegisterTexture("sprites/spritesheet_caveman.png");
-    auto dim = render.TextureDimensions(caveman);
-    int width = std::get<0>(dim);
-    int height = std::get<1>(dim);
-    std::cout << width << "x" << height << "\n";
     bool done = false;
     int x = 640;
     while (!done) {
@@ -159,12 +185,10 @@ int main()
                 done = true;
         }
         RenderTiles(render, tilemap);
-        int current_frame = frame_count * frametime_ms / animation_time_ms;
-        render.Draw(x, 0, 64, 64, frames[current_frame], caveman);
+        animation.update(16);
+        render.Draw(x, 0, 64, 64, animation.current_frame(), caveman);
         render.Render();
-        frametime_ms += 16;
-        if (frametime_ms >= animation_time_ms)
-            frametime_ms -= animation_time_ms;
-        if (--x < -64) x = 640;
+        if (--x < -64)
+            x = 640;
     }
 }
