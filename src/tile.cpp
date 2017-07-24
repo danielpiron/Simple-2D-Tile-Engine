@@ -112,24 +112,6 @@ void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap) {
   }
 }
 
-void DrawGuy(SDL_Renderer *rend, SDL_Texture *guy, const int frame) {
-  SDL_Rect src;
-  SDL_Rect dest;
-
-  dest.x = 40;
-  dest.y = 40;
-  dest.w = 64;
-  dest.h = 64;
-
-  src.x = frame * 16;
-  src.y = 32;
-  src.w = 16;
-  src.h = 16;
-
-  SDL_RenderCopy(rend, guy, &src, &dest);
-
-}
-
 int main() {
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -146,7 +128,7 @@ int main() {
     return 1;
   }
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   int o_width, o_height;
   SDL_GetRendererOutputSize(renderer, &o_width, &o_height);
@@ -162,8 +144,6 @@ int main() {
   }
 
   SDL_Texture *bg = load_tile(renderer, "assets/bg/BG.png");
-  SDL_Texture *guy = load_tile(renderer, "assets/sprites/old-hero.png");
-  int guy_frame = 0;
   int frame_counter = 1;
 
   tilemap.SetTileset(tiles);
@@ -261,19 +241,10 @@ int main() {
       tilemap.Set(xPos / TILE_SIZE, yPos / TILE_SIZE, tile_idx);
     }
 
-    if (!--frame_counter) {
-      guy_frame++;
-      frame_counter = 16;
-    }
-
-    if (guy_frame > 6) {
-      guy_frame = 1;
-    }
-
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, bg, NULL, NULL);
     RenderTiles(renderer, tilemap);
-    DrawGuy(renderer, guy, guy_frame);
+
     SDL_Rect dest;
     dest.x = xPos / TILE_SIZE * TILE_SIZE;
     dest.y = yPos / TILE_SIZE * TILE_SIZE;
