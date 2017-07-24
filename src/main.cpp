@@ -11,12 +11,12 @@ int main()
     SDLRender render;
     render.Create("This is a test", 640, 480);
     TileMap tilemap{ 16, 12 };
-    LoadTiles(tilemap, "map.txt");
-    tilemap.SetTileset(LoadTileset(render, "tiles", 16));
+    LoadTiles(tilemap, "data/map.txt");
+    tilemap.SetTileset(LoadTileset(render, "assets/tiles", 16));
     std::vector<IRender::Rect> frames = make_frames(4, 4, 128, 128);
     auto animation = Animation(800, frames);
 
-    int caveman = render.RegisterTexture("sprites/spritesheet_caveman.png");
+    int caveman = render.RegisterTexture("assets/sprites/spritesheet_caveman.png");
     bool done = false;
     int x = 640;
     while (!done) {

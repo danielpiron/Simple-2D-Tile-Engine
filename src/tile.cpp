@@ -158,16 +158,16 @@ int main() {
   tiles.push_back(nullptr);
 
   for (int i = 1; i <= 16; i++) {
-    tiles.push_back(load_tile(renderer, "tiles/" + std::to_string(i) + ".png"));
+    tiles.push_back(load_tile(renderer, "assets/tiles/" + std::to_string(i) + ".png"));
   }
 
-  SDL_Texture *bg = load_tile(renderer, "bg/BG.png");
-  SDL_Texture *guy = load_tile(renderer, "sprites/old-hero.png");
+  SDL_Texture *bg = load_tile(renderer, "assets/bg/BG.png");
+  SDL_Texture *guy = load_tile(renderer, "assets/sprites/old-hero.png");
   int guy_frame = 0;
   int frame_counter = 1;
 
   tilemap.SetTileset(tiles);
-  LoadTiles(tilemap, "map.txt");
+  LoadTiles(tilemap, "data/map.txt");
 
   int xPos = 0;
   int yPos = 0;
@@ -182,7 +182,7 @@ int main() {
     while(SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) {
         done = true;
-        SaveTiles(tilemap, "map.txt");
+        SaveTiles(tilemap, "data/map.txt");
       }
       else if (event.type == SDL_MOUSEMOTION) {
         xPos = event.motion.x * 2;
