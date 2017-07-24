@@ -98,13 +98,13 @@ void LoadTiles(const TileMap &tilemap, const std::string filename) {
   }
 }
 
-void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap) {
+void RenderTiles(SDL_Renderer *renderer, const TileMap& tilemap, int x_off, int y_off) {
 
     for (int i = 0; i < tilemap.Height(); i++) {
       for (int j = 0; j < tilemap.Width(); j++) {
         SDL_Rect dest;
-        dest.x = j * TILE_SIZE;
-        dest.y = i * TILE_SIZE;
+        dest.x = j * TILE_SIZE + x_off;
+        dest.y = i * TILE_SIZE + y_off;
         dest.w = TILE_SIZE;
         dest.h = TILE_SIZE;
         SDL_RenderCopy(renderer, tilemap.TileAt(j, i), NULL, &dest);
@@ -149,6 +149,8 @@ int main() {
   tilemap.SetTileset(tiles);
   LoadTiles(tilemap, "data/map.txt");
 
+  int camX = 0;
+  int camY = 0;
   int xPos = 0;
   int yPos = 0;
   int vel = 2;
@@ -222,16 +224,16 @@ int main() {
     }
 
     if (direction[0]) {
-      yPos -= vel;
+      camY -= vel;
     }
     if (direction[1]) {
-      xPos += vel;
+      camX += vel;
     }
     if (direction[2]) {
-      yPos += vel;
+      camY += vel;
     }
     if (direction[3]) {
-      xPos -= vel;
+      camX -= vel;
     }
 
     if (clear) {
@@ -243,7 +245,7 @@ int main() {
 
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, bg, NULL, NULL);
-    RenderTiles(renderer, tilemap);
+    RenderTiles(renderer, tilemap, camX, camY);
 
     SDL_Rect dest;
     dest.x = xPos / TILE_SIZE * TILE_SIZE;
